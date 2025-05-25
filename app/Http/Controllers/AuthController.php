@@ -17,17 +17,18 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'birth_date' => 'required|date', // tambahkan validasi tanggal
+            'birth_date' => 'required|date',
+            'gender' => 'required|in:male,female', 
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'birth_date' => $validated['birth_date'], // simpan tanggal lahir
+            'birth_date' => $validated['birth_date'],
+            'gender' => $validated['gender'], 
         ]);
 
-        // Response JSON setelah registrasi berhasil
         return response()->json(['message' => 'User registered successfully'], 201);
     }
 

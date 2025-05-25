@@ -9,9 +9,9 @@ use App\Http\Controllers\AuthController;
 Route::get('/', [HomeController::class, 'index'])->name('users.home');
 
 // CART (hanya bisa diakses jika login)
-Route::resource('cart', CartController::class)->only([
-    'index', 'store', 'destroy'
-])->middleware('auth');
+//Route::resource('cart', CartController::class)->only([
+    //'index', 'store', 'destroy'
+//])->middleware('auth');
 
 // AUTH: Web-based Login/Register
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');

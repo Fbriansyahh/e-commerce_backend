@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -19,20 +18,20 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        return view('cart.index', compact('cartItems'));
+        return response()->json($cartItems);
     }
+
 
     /**
      * Simpan produk ke keranjang.
      */
-    public function store(Request $request)
+    public function addItem(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        // Tambahkan atau update item di keranjang
         $cartItem = Cart::where('user_id', Auth::id())
             ->where('product_id', $request->product_id)
             ->first();
@@ -41,14 +40,17 @@ class CartController extends Controller
             $cartItem->quantity += $request->quantity;
             $cartItem->save();
         } else {
-            Cart::create([
+            $cartItem = Cart::create([
                 'user_id' => Auth::id(),
                 'product_id' => $request->product_id,
                 'quantity' => $request->quantity,
             ]);
         }
 
-        return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+        return response()->json([
+            'message' => 'Produk berhasil ditambahkan ke keranjang!',
+            'cart_item' => $cartItem->load('product'), // pastikan relasi product diikutkan
+        ], 200);
     }
 
     /**
@@ -62,11 +64,20 @@ class CartController extends Controller
 
         $cartItem = Cart::where('id', $id)
             ->where('user_id', Auth::id())
-            ->firstOrFail();
+            ->first();
+
+        if (!$cartItem) {
+            return response()->json([
+                'message' => 'Item keranjang tidak ditemukan atau bukan milik user.'
+            ], 404);
+        }
 
         $cartItem->update(['quantity' => $request->quantity]);
 
-        return redirect()->route('cart.index')->with('success', 'Jumlah produk diperbarui!');
+        return response()->json([
+            'message' => 'Jumlah produk diperbarui!',
+            'cart_item' => $cartItem->load('product'),
+        ], 200);
     }
 
     /**
@@ -76,10 +87,18 @@ class CartController extends Controller
     {
         $cartItem = Cart::where('id', $id)
             ->where('user_id', Auth::id())
-            ->firstOrFail();
+            ->first();
+
+        if (!$cartItem) {
+            return response()->json([
+                'message' => 'Item keranjang tidak ditemukan atau bukan milik user.'
+            ], 404);
+        }
 
         $cartItem->delete();
 
-        return redirect()->route('cart.index')->with('success', 'Produk dihapus dari keranjang!');
+        return response()->json([
+            'message' => 'Produk dihapus dari keranjang!'
+        ], 200);
     }
 }

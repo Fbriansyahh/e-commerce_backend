@@ -16,27 +16,29 @@ class ProductController extends Controller
     }
 
     // Store new product
-   public function store(Request $request)
-{
-    $request->validate([
-        'category_id' => 'required|exists:categories,id',
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'price' => 'required|numeric|min:0',
-        'stock' => 'required|integer', // ✅ tambahkan ini
-        'image' => 'nullable|string',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer', // ✅ tambahkan ini
+            'image' => 'nullable|string',
+            'is_recommended' => 'boolean'
+        ]);
 
-       $product = Product::create([
-        'name' => $request->name,
-        'description' => $request->description,
-        'price' => $request->price,
-        'stock' => $request->stock, // pastikan ini dikirim
-        'category_id' => $request->category_id,
-    ]);
+        $product = Product::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock, // pastikan ini dikirim
+            'category_id' => $request->category_id,
+            'is_recommended' => $request->is_recommended ?? false,
+        ]);
 
-    return response()->json($product, 201);
-}
+        return response()->json($product, 201);
+    }
 
 
     // Get one product
@@ -57,6 +59,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|string',
+            'is_recommended' => 'boolean'
         ]);
 
         $product->update($request->all());
@@ -71,5 +74,15 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json(['message' => 'Product deleted']);
+    }
+
+    //Rekomendasi Product
+    public function recommended()
+    {
+        $recommended = Product::where('is_recommended', true)->take(6)->get();
+
+        return response()->json([
+            'recommended' => $recommended
+        ]);
     }
 }

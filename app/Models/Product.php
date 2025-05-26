@@ -17,6 +17,7 @@ class Product extends Model
         'price',
         'image',
         'stock',
+        'is_recommended',
     ];
     public function category()
     {

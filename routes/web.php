@@ -6,7 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 
 // HOME
-Route::get('/', [HomeController::class, 'index'])->name('users.home');
+//Route::get('/', [HomeController::class, 'index'])->name('users.home');
 
 // CART (hanya bisa diakses jika login)
 //Route::resource('cart', CartController::class)->only([

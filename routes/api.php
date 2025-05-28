@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ProductController;
-use App\Http\Controllers\OrderController; 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\RecommendationController;
 use App\Http\Controllers\Public\PublicController;
@@ -49,13 +49,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Checkout Produk
     Route::post('/checkout', [\App\Http\Controllers\API\OrderController::class, 'checkout']);
+    Route::get('/orders', [\App\Http\Controllers\API\OrderController::class, 'index']);
+    Route::get('/orders/{id}', [\App\Http\Controllers\API\OrderController::class, 'show']);
+    Route::put('/orders/{id}/status', [\App\Http\Controllers\API\OrderController::class, 'updateStatus']);
+    Route::post('/orders/{id}/cancel', [\App\Http\Controllers\API\OrderController::class, 'cancel']);
 
 
-        // 🔐 ADMIN ROUTES
-        Route::middleware('admin')->group(function () {
+    // 🔐 ADMIN ROUTES
+    Route::middleware('admin')->group(function () {
         // Produk & Kategori
         Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
+
+        // Ubah status 
+        Route::put('/orders/{id}/status', [\App\Http\Controllers\API\OrderController::class, 'updateStatus']);
+
         // Banner
         Route::prefix('admin')->group(function () {
             Route::get('banner', [BannerController::class, 'index']);
@@ -68,7 +76,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('recommendations', [RecommendationController::class, 'index']);
             Route::post('recommendations', [RecommendationController::class, 'store']);
             Route::delete('recommendations/{product}', [RecommendationController::class, 'destroy']);
-
         });
     });
 });
